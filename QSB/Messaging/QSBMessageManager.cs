@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 
 namespace QSB.Messaging;
 
@@ -23,7 +22,6 @@ public static class QSBMessageManager
 
 	internal static readonly Type[] _types;
 	internal static readonly Dictionary<Type, ushort> _typeToId = new();
-	private const int EmptyHashCode = -111111;
 
 	static QSBMessageManager()
 	{
@@ -109,10 +107,11 @@ public static class QSBMessageManager
 	#endregion
 
 	/// <summary> Subscribe to an message type. Use this version if you don't need to unsubscribe with a hash. </summary>
-	public static void Subscribe<M>(MessageInvokeCondition msgInvokeCondition, Action action) where M : QSBMessage => Subscribe<M>(EmptyHashCode, msgInvokeCondition, action);
+	public static void Subscribe<M>(MessageInvokeCondition msgInvokeCondition, Action<M> action) where M : QSBMessage =>
+		Subscribe<M>(QSBMessageSubscriptionManager.EmptyHashCode, msgInvokeCondition, action);
 	
 	/// <summary> Subscribe to an message type. The objHash will be used to retrieve the action if you need to unsubscribe. </summary>
-	public static void Subscribe<M>(int objHash, MessageInvokeCondition msgInvokeCondition, Action action) where M : QSBMessage =>
+	public static void Subscribe<M>(int objHash, MessageInvokeCondition msgInvokeCondition, Action<M> action) where M : QSBMessage =>
 		QSBMessageSubscriptionManager.Subscribe<M>(objHash, msgInvokeCondition, action);
 
 	public static void Unsubscribe<M>(int objHash, MessageInvokeCondition msgInvokeCondition) where M : QSBMessage =>
